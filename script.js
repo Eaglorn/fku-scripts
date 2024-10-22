@@ -66,63 +66,97 @@
     ]
   }
 
-  const topScroll = document.querySelector('.topscroll');
-  topScroll.parentNode.removeChild(topScroll);
+  const TableModule = {
+    init: function () {
+      this.table = document.querySelector('#report-result-table');
 
-  const currentPageUrl = window.location.href;
+      const topScroll = document.querySelector('.topscroll');
+      topScroll.parentNode.removeChild(topScroll);
 
-  if (currentPageUrl === "https://lki.tax.nalog.ru/tech/") {
-    for (let i = 0; i < filterSetting.colls.length; i++) {
-      if (filterSetting.colls[i].name === 'Дата закрытия') {
-        filterSetting.colls.splice(i, 1);
-        break;
-      }
-    }
-  } else if (currentPageUrl === "https://lki.tax.nalog.ru/tech/new.php") {
-    for (let i = 0; i < filterSetting.colls.length; i++) {
-      if (filterSetting.colls[i].name === 'Дата принятия') {
-        filterSetting.colls.splice(i, 1);
-        break;
-      }
-    }
-    for (let i = 0; i < filterSetting.colls.length; i++) {
-      if (filterSetting.colls[i].name === 'Дата закрытия') {
-        filterSetting.colls.splice(i, 1);
-        break;
-      }
-    }
-  } else if (currentPageUrl === "https://lki.tax.nalog.ru/tech/end.php") {
-    for (let i = 0; i < filterSetting.colls.length; i++) {
-      if (filterSetting.colls[i].name === 'Этап') {
-        filterSetting.colls.splice(i, 1);
-        break;
-      }
-    }
-    for (let i = 0; i < filterSetting.colls.length; i++) {
-      if (filterSetting.colls[i].name === 'Дата закрытия') {
-        filterSetting.colls.splice(i, 1);
-        break;
-      }
-    }
-  } else if (currentPageUrl === "https://lki.tax.nalog.ru/tech/expired.php") { }
+      const removeColumnByName = (columnName) => {
+        const index = filterSetting.colls.findIndex(col => col.name === columnName);
+        if (index !== -1) {
+          filterSetting.colls.splice(index, 1);
+        }
+      };
 
-  let width = '';
-  let display = '';
-  let style = document.createElement('style');
-  style.type = 'text/css';
-  let css = '.fku-modal {display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0.4);} ';
-  css = css + '.fku-modal-content {background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 40%;} '
-  css = css + '.fku-modal-close {color: #aaa; float: right; font-size: 28px; font-weight: bold;} .fku-modal-close:hover, .fku-modal-close:focus {color: black; text-decoration: none; cursor: pointer;} ';
-  css = css + '.fku-fixed-button {position: fixed; top: 50%; right: 2px; transform: translateY(-50%); padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2)} ';
-  css = css + '.fku-fixe-button:hover {background-color: #0056b3;} '
-  for (let i = 0; i < filterSetting.colls.length; i++) {
-    width = filterSetting.colls[i].width;
-    display = '';
-    if (!filterSetting.colls[i].visible) display = 'display: none !important;'
-    css = css + '.truncate-' + i + ' {overflow: hidden !important; white-space: nowrap !important; text-overflow: ellipsis !important; width: ' + width + 'px !important; min-width: ' + width + 'px !important; max-width: ' + width + 'px !important;' + display + '} '
-  }
-  style.appendChild(document.createTextNode(css));
-  document.body.appendChild(style);
+      switch (window.location.href) {
+        case "https://lki.tax.nalog.ru/tech/":
+          removeColumnByName('Дата закрытия');
+          break;
+
+        case "https://lki.tax.nalog.ru/tech/new.php":
+          removeColumnByName('Дата принятия');
+          removeColumnByName('Дата закрытия');
+          break;
+
+        case "https://lki.tax.nalog.ru/tech/end.php":
+          removeColumnByName('Этап');
+          removeColumnByName('Дата закрытия');
+          break;
+
+        case "https://lki.tax.nalog.ru/tech/expired.php":
+          break;
+      }
+
+      this.setupTable();
+    },
+    setupTable: function () {
+      let width = '';
+      let display = '';
+      let style = document.createElement('style');
+      let css = '.fku-modal {display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0.4);} ';
+      css = css + '.fku-modal-content {background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 40%;} '
+      css = css + '.fku-modal-close {color: #aaa; float: right; font-size: 28px; font-weight: bold;} .fku-modal-close:hover, .fku-modal-close:focus {color: black; text-decoration: none; cursor: pointer;} ';
+      css = css + '.fku-fixed-button {position: fixed; top: 50%; right: 2px; transform: translateY(-50%); padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2)} ';
+      css = css + '.fku-fixe-button:hover {background-color: #0056b3;} '
+      for (let i = 0; i < filterSetting.colls.length; i++) {
+        width = filterSetting.colls[i].width;
+        display = '';
+        if (!filterSetting.colls[i].visible) display = 'display: none !important;'
+        css = css + '.truncate-' + i + ' {overflow: hidden !important; white-space: nowrap !important; text-overflow: ellipsis !important; width: ' + width + 'px !important; min-width: ' + width + 'px !important; max-width: ' + width + 'px !important;' + display + '} '
+      }
+      style.appendChild(document.createTextNode(css));
+      document.body.appendChild(style);
+
+      this.filterColumns();
+    },
+    filterColumns: function () {
+    }
+  };
+
+  const ModalModule = {
+    init: function () {
+      this.createModal();
+      this.bindEvents();
+    },
+    createModal: function () {
+    },
+    bindEvents: function () {
+    }
+  };
+
+  const EventModule = {
+    init: function () {
+      this.bindGlobalEvents();
+    },
+    bindGlobalEvents: function () {
+      //document.addEventListener('keydown', this.handleKeyDown);
+      //document.addEventListener('click', this.handleClick);
+    },
+    handleKeyDown: function (event) {
+    },
+    handleClick: function (event) {
+    }
+  };
+
+  const init = function () {
+    TableModule.init();
+    ModalModule.init();
+    EventModule.init();
+  };
+
+  init();
 
   const moveColumn = function (table, fromIndex, toIndex) {
     table.rows.array.forEach(row => {
@@ -150,166 +184,138 @@
 
       const replace = []
 
-      var cells = table.rows[0].cells;
+      let cells = table.rows[0].cells;
 
-      for (let i = 0; i < cells.length; i++) {
-        for (let j = 0; j < filterSetting.colls.length; j++) {
-          if (cells[i].textContent.includes(filterSetting.colls[j].name)) {
-            replace.push({ indexOld: i, indexNew: j });
-            break;
-          } else if (cells[i].innerHTML.indexOf("#") !== -1) {
-            replace.push({ indexOld: i, indexNew: j });
-            break;
+      cells.forEach((cell, index) => {
+        for (let i = 0; i < filterSetting.colls.length; i++) {
+          if (cell.textContent.includes(filterSetting.colls[i].name) || cell.innerHTML.indexOf("#") !== -1) {
+            replace.push({ indexOld: index, indexNew: i });
           }
         }
-      }
+      })
 
       const arrOld = []
       const arrNew = []
 
-      for (let i = 0; i < replace.length; i++) {
-        arrOld.push(replace[i].indexOld);
-        arrNew.push(replace[i].indexNew);
-      }
+      replace.forEach((item, index) => {
+        arrOld.push(replace[index].indexOld);
+        arrNew.push(replace[index].indexNew);
+      })
 
-      var tmp;
-
-      for (let i = 0; i < arrNew.length; i++) {
-        if (arrOld[i] != arrNew[i]) {
-          for (let j = 0; j <= arrOld.length; j++) {
-            if (arrNew[i] === arrOld[j]) {
-              moveColumn(table, arrOld[i], arrOld[j]);
-              tmp = arrOld[i];
-              arrOld[i] = arrOld[j];
-              arrOld[j] = tmp;
-            }
+      arrNew.forEach((item1, index1) => {
+        if (arrOld[index1] !== item1) {
+          const index2 = arrOld.indexOf(item1);
+          if (index2 !== -1) {
+            moveColumn(table, arrOld[index1], arrOld[index2]);
+            [arrOld[index1], arrOld[index2]] = [arrOld[index2], arrOld[index1]];
           }
         }
+      });
+
+      const deleteClass = function (findClass, deleteClass) {
+        const elements = table.querySelectorAll(findClass);
+        elements.forEach((element) => {
+          element.classList.remove(deleteClass);
+        })
       }
 
-      const elementsHidden = table.querySelectorAll('.hidden');
-      const elementsHiddable = table.querySelectorAll('.hiddable');
-      const elementsHiddable1 = table.querySelectorAll('.hiddable1');
-      const elementsHiddable2 = table.querySelectorAll('.hiddable2');
-      const elementsHeadCellTitle = table.querySelectorAll('.reports-head-cell-title');
+      deleteClass('.hidden', 'hidden');
+      deleteClass('.hiddable', 'hidden');
+      deleteClass('.hiddable1', 'hidden');
+      deleteClass('.hiddable2', 'hidden');
+      deleteClass('.reports-head-cell-title', 'hidden');
 
-      for (let i = 0; i < elementsHidden.length; i++) {
-        elementsHidden[i].classList.remove('hidden');
-      }
-      for (let i = 0; i < elementsHiddable.length; i++) {
-        elementsHiddable[i].classList.remove('hiddable');
-      }
-      for (let i = 0; i < elementsHiddable1.length; i++) {
-        elementsHiddable1[i].classList.remove('hiddable1');
-      }
-      for (let i = 0; i < elementsHiddable2.length; i++) {
-        elementsHiddable2[i].classList.remove('hiddable2');
-      }
-      for (let i = 0; i < elementsHeadCellTitle.length; i++) {
-        elementsHeadCellTitle[i].classList.remove('reports-head-cell-title');
-      }
+      table.rows[0].cells.forEach((cell) => {
+        cell.classList.add('reports-head-cell');
+      })
 
-      for (let i = 0; i < table.rows[0].cells; i++) {
-        table.rows[0].cells[i].classList.add('reports-head-cell');
-      }
+      table.rows.forEach((row) => {
+        row.cells.forEach((cell, index) => {
+          cell.classList.add('truncate-' + index);
+        })
+      })
 
-      for (let i = 0; i < table.rows.length; i++) {
-        for (let j = 0; j < table.rows[i].cells.length; j++) {
-          table.rows[i].cells[j].classList.add('truncate-' + j);
-        }
-      }
-
-      var currentDate = new Date();
+      const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
 
-      for (let i = 0; i < filterSetting.colls.length; i++) {
-        if (filterSetting.colls[i].visible) {
-          if (filterSetting.colls[i].name === 'Код ЭКП') {
-            for (let j = 1; j < table.rows.length; j++) {
-              if (i >= table.rows[j].cells.length) break;
-              if (table.rows[j].cells[i].textContent.includes(filterSetting.ekp)) {
-                table.rows[j].cells[i].style.backgroundColor = filterSetting.ekpColor;
-              } else {
-                table.rows[j].cells[i].style.backgroundColor = filterSetting.ekpAnotherColor;
+      filterSetting.colls.forEach((element, index) => {
+        if (element.visible) {
+          switch (element.name) {
+            case 'Код ЭКП':
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if (!cell) break;
+                cell.style.backgroundColor = cell.textContent.includes(filterSetting.ekp) ? filterSetting.ekpColor : filterSetting.ekpAnotherColor;
               }
-            }
-          } else if (filterSetting.colls[i].name === 'Исполнитель') {
-            for (let j = 1; j < table.rows.length; j++) {
-              if (i >= table.rows[j].cells.length) break;
-              if (table.rows[j].cells[i].textContent.includes(filterSetting.user)) {
-                table.rows[j].cells[i].style.backgroundColor = filterSetting.userColor;
-              } else {
-                table.rows[j].cells[i].style.backgroundColor = filterSetting.userAnotherColor;
+              break;
+            case 'Исполнитель':
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if (!cell) break;
+                cell.style.backgroundColor = cell.textContent.includes(filterSetting.user) ? filterSetting.userColor : filterSetting.userAnotherColor;
               }
-            }
-          } else if (filterSetting.colls[i].name === 'Доп.статус') {
-            for (let j = 1; j < table.rows.length; j++) {
-              if (i >= table.rows[j].cells.length) break;
-              if (table.rows[j].cells[i].textContent.length > 0) {
-                table.rows[j].cells[i].textContent = '';
-                table.rows[j].cells[i].style.backgroundColor = 'black';
-              }
-            }
-          } else if (filterSetting.colls[i].name === 'Приоритет') {
-            for (let j = 1; j < table.rows.length; j++) {
-              if (i >= table.rows[j].cells.length) break;
-              if (table.rows[j].cells[i].textContent.includes('Низкий')) {
-                table.rows[j].cells[i].textContent = '';
-                table.rows[j].cells[i].style.backgroundColor = filterSetting.priorityLowColor;
-              } else if (table.rows[j].cells[i].textContent.includes('Средний')) {
-                table.rows[j].cells[i].textContent = '';
-                table.rows[j].cells[i].style.backgroundColor = filterSetting.priorityMediumColor;
-              } else if (table.rows[j].cells[i].textContent.includes('Высокий')) {
-                table.rows[j].cells[i].textContent = '';
-                table.rows[j].cells[i].style.backgroundColor = filterSetting.priorityHighColor;
-              }
-            }
-          } else if (filterSetting.colls[i].name === 'Дата создания') {
-            for (let j = 1; j < table.rows.length; j++) {
-              if (i >= table.rows[j].cells.length) break;
-              table.rows[j].cells[i].textContent = table.rows[j].cells[i].textContent.slice(0, -3);
-
-            }
-          } else if (filterSetting.colls[i].name === 'Дата принятия') {
-            for (let j = 1; j < table.rows.length; j++) {
-              if (i >= table.rows[j].cells.length) break;
-              table.rows[j].cells[i].textContent = table.rows[j].cells[i].textContent.slice(0, -3);
-            }
-          } else if (filterSetting.colls[i].name === 'Дата закрытия') {
-            for (let j = 1; j < table.rows.length; j++) {
-              if (i >= table.rows[j].cells.length) break;
-              table.rows[j].cells[i].textContent = table.rows[j].cells[i].textContent.slice(0, -3);
-            }
-          }
-          else if (filterSetting.colls[i].name === 'Крайний срок завершения') {
-            for (let j = 1; j < table.rows.length; j++) {
-              if (i >= table.rows[j].cells.length) break;
-              table.rows[j].cells[i].textContent = table.rows[j].cells[i].textContent.slice(0, -3);
-              const dateParts = table.rows[j].cells[i].textContent.split(' ');
-              const [day, month, year] = dateParts[0].split('.').map(Number);
-              const [hour, seccond] = dateParts[1].split(':').map(Number);
-              const inputDate = new Date(year, month - 1, day);
-              const differenceInMillis = inputDate - currentDate;
-              if (differenceInMillis === 0) {
-                table.rows[j].cells[i].style.backgroundColor = filterSetting.timeEndWarning;
-              }
-
-              let isOneDayInMillis = oneDayInMillis;
-
-              if (currentDate.getDay() === 5) {
-                isOneDayInMillis = isOneDayInMillis * 3;
-              }
-              if (differenceInMillis - isOneDayInMillis === 0) {
-                if (hour < 11) {
-                  table.rows[j].cells[i].style.backgroundColor = filterSetting.timeEndWarning;
-                } else {
-                  table.rows[j].cells[i].style.backgroundColor = filterSetting.timeEndTomorrowWarning;
+              break;
+            case 'Доп.статус':
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if (!cell) break;
+                if (cell.textContent.length > 0) {
+                  cell.textContent = '';
+                  cell.style.backgroundColor = 'black';
                 }
               }
+              break;
+            case 'Приоритет': {
+              const priorityColors = { 'Низкий': filterSetting.priorityLowColor, 'Средний': filterSetting.priorityMediumColor, 'Высокий': filterSetting.priorityHighColor };
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if (!cell) break;
+                for (const [priority, color] of Object.entries(priorityColors)) {
+                  if (cell.textContent.includes(priority)) {
+                    cell.textContent = '';
+                    cell.style.backgroundColor = color;
+                    break;
+                  }
+                }
+              }
+              break;
             }
+            case 'Дата создания':
+            case 'Дата закрытия':
+            case 'Дата принятия':
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if (cell && cell.textContent.length >= 3) {
+                  cell.textContent = cell.textContent.slice(0, -3);
+                }
+              }
+              break;
+            case 'Крайний срок завершения':
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if (cell && cell.textContent.length >= 3) {
+                  cell.textContent = cell.textContent.slice(0, -3);
+                  const dateParts = cell.textContent.split(' ');
+                  if (dateParts.length < 2) continue;
+                  const [day, month, year] = dateParts[0].split('.').map(Number);
+                  const [hour] = dateParts[1].split(':').map(Number);
+                  const inputDate = new Date(year, month - 1, day);
+                  const differenceInMillis = inputDate - currentDate;
+                  if (differenceInMillis === 0) {
+                    cell.style.backgroundColor = filterSetting.timeEndWarning;
+                  }
+                  let isOneDayInMillis = oneDayInMillis;
+                  if (currentDate.getDay() === 5) {
+                    isOneDayInMillis *= 3;
+                  }
+                  if (differenceInMillis - isOneDayInMillis === 0) {
+                    cell.style.backgroundColor = hour < 11 ? filterSetting.timeEndWarning : filterSetting.timeEndTomorrowWarning;
+                  }
+                }
+              }
           }
         }
-      }
+      })
 
       const element = document.createElement('div');
       element.id = 'checkFilterElement'
@@ -323,43 +329,45 @@
     if (event.ctrlKey && (event.key === 'b' || event.key === 'и')) {
       const requestWindow = document.querySelector('#requestWindow');
       const tables = requestWindow.querySelectorAll('table');
-      const content = tables[0].rows[5].cells[1].textContent
-      for (let i = 0; i < serviceTextData.length; i++) {
-        if (content === serviceTextData_12.name) {
-          if (requestWindow.querySelector('.panel-body').textContent.length < 200) {
-            navigator.clipboard.writeText(serviceTextData_12.data[0]);
-          } else {
-            navigator.clipboard.writeText(serviceTextData_12.data[1]);
-          }
-        } else {
-          if (content === serviceTextData[i].name) {
-            navigator.clipboard.writeText(serviceTextData[i].value);
-            break;
-          }
+      const content = tables[0].rows[5].cells[1].textContent;
+
+      const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text).catch(err => {
+          console.error('Ошибка при копировании текста:', err);
+        });
+      };
+
+      if (content === serviceTextData_12.name) {
+        const panelBody = requestWindow.querySelector('.panel-body');
+        const textToCopy = panelBody && panelBody.textContent.length < 200
+          ? serviceTextData_12.data[0] : serviceTextData_12.data[1];
+        copyToClipboard(textToCopy);
+        return;
+      }
+
+      for (const element of serviceTextData) {
+        if (content === element.name) {
+          copyToClipboard(element.value);
+          break;
         }
       }
     }
   });
 
-  var scriptRun = false;
-  var timerUserActive = 0;
-  var timeTimer = 100;
-  var timeout;
+  let scriptRun = false;
+  let timerUserActive = 0;
+  let timeout;
 
+  // Функция для установки фильтра
   const timerFilter = function () {
-    timerUserActive = timerUserActive + 1;
-    if (timerUserActive < 20) {
-      timeTimer = 50;
-    } else {
-      timeTimer = 1500;
-    }
+    timerUserActive += 1;
+    const timeTimer = timerUserActive < 20 ? 50 : 1500;
     setTimeout(() => {
-      //console.time('setFilter');
       if (!scriptRun) setFilter();
-      //console.timeEnd('setFilter');
       timerFilter();
     }, timeTimer);
-  }
+  };
+
 
   const resetTimer = function () {
     clearTimeout(timeout);
@@ -367,11 +375,12 @@
     timeout = setTimeout(() => {
       location.reload();
     }, 300000);
-  }
+  };
+
 
   document.addEventListener('click', function (event) {
     const clickedElement = document.elementFromPoint(event.clientX, event.clientY);
-    if (clickedElement && clickedElement.closest('button')) {
+    if (clickedElement?.closest('button')) {
       resetTimer();
     }
   });
@@ -433,7 +442,6 @@
       modal.style.display = 'none';
     }
   }
-  setTimeout(() => {
-    timerFilter()
-  }, 1000);
+
+  setTimeout(timerFilter, 1000);
 })();
