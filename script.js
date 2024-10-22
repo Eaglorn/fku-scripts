@@ -167,161 +167,156 @@
   }
 
   const oneDayInMillis = 24 * 60 * 60 * 1000;
+  let scriptRun = false;
 
   const setFilter = function () {
-    scriptRun = true
-    if (!document.querySelector('#checkFilterElement')) {
-      const table = document.querySelector('#report-result-table');
+    scriptRun = true;
 
-      const anotherHeader = document.querySelector('.tableFloatingHeader');
-      if (anotherHeader) anotherHeader.parentNode.removeChild(anotherHeader);
+    const table = document.querySelector('#report-result-table');
 
-      table.rows.forEach((row) => {
-        row.cells.forEach((cell) => {
-          cell.textContent = cell.textContent.trim()
-        })
-      });
+    const anotherHeader = document.querySelector('.tableFloatingHeader');
+    if (anotherHeader) anotherHeader.parentNode.removeChild(anotherHeader);
 
-      const replace = []
-
-      let cells = table.rows[0].cells;
-
-      cells.forEach((cell, index) => {
-        for (let i = 0; i < filterSetting.colls.length; i++) {
-          if (cell.textContent.includes(filterSetting.colls[i].name) || cell.innerHTML.indexOf("#") !== -1) {
-            replace.push({ indexOld: index, indexNew: i });
-          }
-        }
+    table.rows.forEach((row) => {
+      row.cells.forEach((cell) => {
+        cell.textContent = cell.textContent.trim()
       })
+    });
 
-      const arrOld = []
-      const arrNew = []
+    const replace = []
 
-      replace.forEach((item, index) => {
-        arrOld.push(replace[index].indexOld);
-        arrNew.push(replace[index].indexNew);
-      })
+    let cells = table.rows[0].cells;
 
-      arrNew.forEach((item1, index1) => {
-        if (arrOld[index1] !== item1) {
-          const index2 = arrOld.indexOf(item1);
-          if (index2 !== -1) {
-            moveColumn(table, arrOld[index1], arrOld[index2]);
-            [arrOld[index1], arrOld[index2]] = [arrOld[index2], arrOld[index1]];
-          }
+    cells.forEach((cell, index) => {
+      for (let i = 0; i < filterSetting.colls.length; i++) {
+        if (cell.textContent.includes(filterSetting.colls[i].name) || cell.innerHTML.indexOf("#") !== -1) {
+          replace.push({ indexOld: index, indexNew: i });
         }
-      });
-
-      const deleteClass = function (findClass, deleteClass) {
-        const elements = table.querySelectorAll(findClass);
-        elements.forEach((element) => {
-          element.classList.remove(deleteClass);
-        })
       }
+    })
 
-      deleteClass('.hidden', 'hidden');
-      deleteClass('.hiddable', 'hidden');
-      deleteClass('.hiddable1', 'hidden');
-      deleteClass('.hiddable2', 'hidden');
-      deleteClass('.reports-head-cell-title', 'hidden');
+    const arrOld = []
+    const arrNew = []
 
-      table.rows[0].cells.forEach((cell) => {
-        cell.classList.add('reports-head-cell');
-      })
+    replace.forEach((item, index) => {
+      arrOld.push(replace[index].indexOld);
+      arrNew.push(replace[index].indexNew);
+    })
 
-      table.rows.forEach((row) => {
-        row.cells.forEach((cell, index) => {
-          cell.classList.add('truncate-' + index);
-        })
-      })
-
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
-
-      filterSetting.colls.forEach((element, index) => {
-        if (element.visible) {
-          switch (element.name) {
-            case 'Код ЭКП':
-              for (let j = 1; j < table.rows.length; j++) {
-                const cell = table.rows[j].cells[index];
-                if (!cell) break;
-                cell.style.backgroundColor = cell.textContent.includes(filterSetting.ekp) ? filterSetting.ekpColor : filterSetting.ekpAnotherColor;
-              }
-              break;
-            case 'Исполнитель':
-              for (let j = 1; j < table.rows.length; j++) {
-                const cell = table.rows[j].cells[index];
-                if (!cell) break;
-                cell.style.backgroundColor = cell.textContent.includes(filterSetting.user) ? filterSetting.userColor : filterSetting.userAnotherColor;
-              }
-              break;
-            case 'Доп.статус':
-              for (let j = 1; j < table.rows.length; j++) {
-                const cell = table.rows[j].cells[index];
-                if (!cell) break;
-                if (cell.textContent.length > 0) {
-                  cell.textContent = '';
-                  cell.style.backgroundColor = 'black';
-                }
-              }
-              break;
-            case 'Приоритет': {
-              const priorityColors = { 'Низкий': filterSetting.priorityLowColor, 'Средний': filterSetting.priorityMediumColor, 'Высокий': filterSetting.priorityHighColor };
-              for (let j = 1; j < table.rows.length; j++) {
-                const cell = table.rows[j].cells[index];
-                if (!cell) break;
-                for (const [priority, color] of Object.entries(priorityColors)) {
-                  if (cell.textContent.includes(priority)) {
-                    cell.textContent = '';
-                    cell.style.backgroundColor = color;
-                    break;
-                  }
-                }
-              }
-              break;
-            }
-            case 'Дата создания':
-            case 'Дата закрытия':
-            case 'Дата принятия':
-              for (let j = 1; j < table.rows.length; j++) {
-                const cell = table.rows[j].cells[index];
-                if (cell && cell.textContent.length >= 3) {
-                  cell.textContent = cell.textContent.slice(0, -3);
-                }
-              }
-              break;
-            case 'Крайний срок завершения':
-              for (let j = 1; j < table.rows.length; j++) {
-                const cell = table.rows[j].cells[index];
-                if (cell && cell.textContent.length >= 3) {
-                  cell.textContent = cell.textContent.slice(0, -3);
-                  const dateParts = cell.textContent.split(' ');
-                  if (dateParts.length < 2) continue;
-                  const [day, month, year] = dateParts[0].split('.').map(Number);
-                  const [hour] = dateParts[1].split(':').map(Number);
-                  const inputDate = new Date(year, month - 1, day);
-                  const differenceInMillis = inputDate - currentDate;
-                  if (differenceInMillis === 0) {
-                    cell.style.backgroundColor = filterSetting.timeEndWarning;
-                  }
-                  let isOneDayInMillis = oneDayInMillis;
-                  if (currentDate.getDay() === 5) {
-                    isOneDayInMillis *= 3;
-                  }
-                  if (differenceInMillis - isOneDayInMillis === 0) {
-                    cell.style.backgroundColor = hour < 11 ? filterSetting.timeEndWarning : filterSetting.timeEndTomorrowWarning;
-                  }
-                }
-              }
-          }
+    arrNew.forEach((item1, index1) => {
+      if (arrOld[index1] !== item1) {
+        const index2 = arrOld.indexOf(item1);
+        if (index2 !== -1) {
+          moveColumn(table, arrOld[index1], arrOld[index2]);
+          [arrOld[index1], arrOld[index2]] = [arrOld[index2], arrOld[index1]];
         }
-      })
+      }
+    });
 
-      const element = document.createElement('div');
-      element.id = 'checkFilterElement'
-      element.style.display = 'none';
-      document.querySelector('#report-result-table').appendChild(element);
+    const deleteClass = function (findClass, deleteClass) {
+      const elements = table.querySelectorAll(findClass);
+      elements.forEach((element) => {
+        element.classList.remove(deleteClass);
+      })
     }
+
+    deleteClass('.hidden', 'hidden');
+    deleteClass('.hiddable', 'hidden');
+    deleteClass('.hiddable1', 'hidden');
+    deleteClass('.hiddable2', 'hidden');
+    deleteClass('.reports-head-cell-title', 'hidden');
+
+    table.rows[0].cells.forEach((cell) => {
+      cell.classList.add('reports-head-cell');
+    })
+
+    table.rows.forEach((row) => {
+      row.cells.forEach((cell, index) => {
+        cell.classList.add('truncate-' + index);
+      })
+    })
+
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    filterSetting.colls.forEach((element, index) => {
+      if (element.visible) {
+        switch (element.name) {
+          case 'Код ЭКП':
+            for (let j = 1; j < table.rows.length; j++) {
+              const cell = table.rows[j].cells[index];
+              if (!cell) break;
+              cell.style.backgroundColor = cell.textContent.includes(filterSetting.ekp) ? filterSetting.ekpColor : filterSetting.ekpAnotherColor;
+            }
+            break;
+          case 'Исполнитель':
+            for (let j = 1; j < table.rows.length; j++) {
+              const cell = table.rows[j].cells[index];
+              if (!cell) break;
+              cell.style.backgroundColor = cell.textContent.includes(filterSetting.user) ? filterSetting.userColor : filterSetting.userAnotherColor;
+            }
+            break;
+          case 'Доп.статус':
+            for (let j = 1; j < table.rows.length; j++) {
+              const cell = table.rows[j].cells[index];
+              if (!cell) break;
+              if (cell.textContent.length > 0) {
+                cell.textContent = '';
+                cell.style.backgroundColor = 'black';
+              }
+            }
+            break;
+          case 'Приоритет': {
+            const priorityColors = { 'Низкий': filterSetting.priorityLowColor, 'Средний': filterSetting.priorityMediumColor, 'Высокий': filterSetting.priorityHighColor };
+            for (let j = 1; j < table.rows.length; j++) {
+              const cell = table.rows[j].cells[index];
+              if (!cell) break;
+              for (const [priority, color] of Object.entries(priorityColors)) {
+                if (cell.textContent.includes(priority)) {
+                  cell.textContent = '';
+                  cell.style.backgroundColor = color;
+                  break;
+                }
+              }
+            }
+            break;
+          }
+          case 'Дата создания':
+          case 'Дата закрытия':
+          case 'Дата принятия':
+            for (let j = 1; j < table.rows.length; j++) {
+              const cell = table.rows[j].cells[index];
+              if (cell && cell.textContent.length >= 3) {
+                cell.textContent = cell.textContent.slice(0, -3);
+              }
+            }
+            break;
+          case 'Крайний срок завершения':
+            for (let j = 1; j < table.rows.length; j++) {
+              const cell = table.rows[j].cells[index];
+              if (cell && cell.textContent.length >= 3) {
+                cell.textContent = cell.textContent.slice(0, -3);
+                const dateParts = cell.textContent.split(' ');
+                if (dateParts.length < 2) continue;
+                const [day, month, year] = dateParts[0].split('.').map(Number);
+                const [hour] = dateParts[1].split(':').map(Number);
+                const inputDate = new Date(year, month - 1, day);
+                const differenceInMillis = inputDate - currentDate;
+                if (differenceInMillis === 0) {
+                  cell.style.backgroundColor = filterSetting.timeEndWarning;
+                }
+                let isOneDayInMillis = oneDayInMillis;
+                if (currentDate.getDay() === 5) {
+                  isOneDayInMillis *= 3;
+                }
+                if (differenceInMillis - isOneDayInMillis === 0) {
+                  cell.style.backgroundColor = hour < 11 ? filterSetting.timeEndWarning : filterSetting.timeEndTomorrowWarning;
+                }
+              }
+            }
+        }
+      }
+    })
     scriptRun = false;
   }
 
@@ -354,24 +349,10 @@
     }
   });
 
-  let scriptRun = false;
-  let timerUserActive = 0;
   let timeout;
-
-  // Функция для установки фильтра
-  const timerFilter = function () {
-    timerUserActive += 1;
-    const timeTimer = timerUserActive < 20 ? 50 : 1500;
-    setTimeout(() => {
-      if (!scriptRun) setFilter();
-      timerFilter();
-    }, timeTimer);
-  };
-
 
   const resetTimer = function () {
     clearTimeout(timeout);
-    timerUserActive = 0;
     timeout = setTimeout(() => {
       location.reload();
     }, 300000);
@@ -384,6 +365,25 @@
       resetTimer();
     }
   });
+
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (scriptRun) return;
+      if (mutation.type === 'childList' || mutation.type === 'subtree') {
+        setFilter();
+      }
+    });
+  });
+
+  const targetNode = document.querySelector('#report-result-table');
+  if (targetNode) {
+    observer.observe(targetNode, {
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  setTimeout(setFilter, 2000);
 
   const modal = document.createElement('div');
   modal.id = 'fkuModal'
@@ -442,6 +442,4 @@
       modal.style.display = 'none';
     }
   }
-
-  setTimeout(timerFilter, 1000);
 })();
