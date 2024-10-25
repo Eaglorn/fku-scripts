@@ -35,6 +35,7 @@
     ekpAnotherColor: '#fff3e0',
     userColor: '#dcedc8',
     userAnotherColor: '#fff3e0',
+    delayedColor: '#ef5350',
     priorityLowColor: '#b2ebf2',
     priorityMediumColor: '#a5d6a7',
     priorityHighColor: '#ef9a9a',
@@ -349,7 +350,16 @@
               }
             }
             break;
-          case 'Приоритет': {
+         case 'Этап':
+           for (let j = 1; j < table.rows.length; j++) {
+            const cell = table.rows[j].cells[index];
+             if (!cell) break;
+             if (cell.textContent.includes('Отложенное выполнение')) {
+               cell.style.backgroundColor = filterSetting.delayedColor;
+             }
+           }
+           break;
+         case 'Приоритет': {
             const priorityColors = {
               Низкий: filterSetting.priorityLowColor,
               Средний: filterSetting.priorityMediumColor,
@@ -476,7 +486,7 @@
     }
   });
 
-  const modal = document.createElement('div');
+  /*const modal = document.createElement('div');
   modal.id = 'fkuModal';
   modal.classList.add('fku-modal');
 
@@ -533,4 +543,5 @@
       modal.style.display = 'none';
     }
   };
+  */
 })();
