@@ -196,7 +196,7 @@
 
       this.filterColumns();
     },
-    filterColumns: function () {},
+    filterColumns: function () { },
   };
 
   const ModalModule = {
@@ -204,8 +204,8 @@
       this.createModal();
       this.bindEvents();
     },
-    createModal: function () {},
-    bindEvents: function () {},
+    createModal: function () { },
+    bindEvents: function () { },
   };
 
   const EventModule = {
@@ -216,8 +216,8 @@
       //document.addEventListener('keydown', this.handleKeyDown)
       //document.addEventListener('click', this.handleClick)
     },
-    handleKeyDown: function (event) {},
-    handleClick: function (event) {},
+    handleKeyDown: function (event) { },
+    handleClick: function (event) { },
   };
 
   const init = function () {
@@ -236,11 +236,11 @@
     });
   };
 
-  const deleteSpaces = function(table, tag) {
-     const elements = table.querySelectorAll(tag);
-     elements.forEach((element) => {
-       element.textContent = element.textContent.trim();
-     });
+  const deleteSpaces = function (table, tag) {
+    const elements = table.querySelectorAll(tag);
+    elements.forEach((element) => {
+      element.textContent = element.textContent.trim();
+    });
   }
 
   const oneDayInMillis = 24 * 60 * 60 * 1000;
@@ -350,16 +350,16 @@
               }
             }
             break;
-         case 'Этап':
-           for (let j = 1; j < table.rows.length; j++) {
-            const cell = table.rows[j].cells[index];
-             if (!cell) break;
-             if (cell.textContent.includes('Отложенное выполнение')) {
-               cell.style.backgroundColor = filterSetting.delayedColor;
-             }
-           }
-           break;
-         case 'Приоритет': {
+          case 'Этап':
+            for (let j = 1; j < table.rows.length; j++) {
+              const cell = table.rows[j].cells[index];
+              if (!cell) break;
+              if (cell.textContent.includes('Отложенное выполнение')) {
+                cell.style.backgroundColor = filterSetting.delayedColor;
+              }
+            }
+            break;
+          case 'Приоритет': {
             const priorityColors = {
               Низкий: filterSetting.priorityLowColor,
               Средний: filterSetting.priorityMediumColor,
