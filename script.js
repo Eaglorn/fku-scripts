@@ -235,6 +235,13 @@
     });
   };
 
+  const deleteSpaces = function(table, tag) {
+     const elements = table.querySelectorAll(tag);
+     elements.forEach((element) => {
+       element.textContent = element.textContent.trim();
+     });
+  }
+
   const oneDayInMillis = 24 * 60 * 60 * 1000;
   let scriptRun = false;
 
@@ -250,11 +257,9 @@
     if (anotherHeader) {
       anotherHeader.parentNode.removeChild(anotherHeader);
     }
-    [...table.rows].forEach((row) => {
-      [...row.cells].forEach((cell) => {
-        cell.textContent = cell.textContent.trim();
-      });
-    });
+
+    deleteSpaces(table, '.reports-head-cell-title');
+    deleteSpaces(table, 'td');
 
     const replace = [];
 
@@ -298,11 +303,7 @@
     deleteClass('.hiddable', 'hidden');
     deleteClass('.hiddable1', 'hidden');
     deleteClass('.hiddable2', 'hidden');
-    deleteClass('.reports-head-cell-title', 'hidden');
-
-    [...table.rows[0].cells].forEach((cell) => {
-      cell.classList.add('reports-head-cell');
-    });
+    deleteClass('.reports-head-cell', 'hidden');
 
     [...table.rows].forEach((row) => {
       [...row.cells].forEach((cell, index) => {
