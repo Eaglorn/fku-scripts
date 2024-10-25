@@ -408,7 +408,7 @@
                 }
                 if (differenceInMillis - isOneDayInMillis === 0) {
                   cell.style.backgroundColor =
-                    hour < 11
+                    hour < 12
                       ? filterSetting.timeEndWarning
                       : filterSetting.timeEndTomorrowWarning;
                 }
