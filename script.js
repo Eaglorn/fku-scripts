@@ -75,6 +75,26 @@
         'Проведен анализ журналов Log.nsf. Критических ошибок не выявлено. Мониторинг состояния Mail.box выполнен. Сбоев нет.',
     },
     {
+      name: 'Профилактические работы. 9. Электронная почта. Обеспечение репликации Lotus Domino. (ТУ)',
+      value:
+        'Проведён мониторинг результатов репликации системообразующих файлов.',
+    },
+    {
+      name: 'Профилактические работы. 10. Электронная почта. Обеспечение работоспособности Lotus Domino. (ТУ)',
+      value:
+        'Мониторинг истечения сроков сертификатов пользователей, мониторинг превышения квот почтовых ящиков выполнен. Сертификаты актуальны, квоты не превышены.',
+    },
+    {
+      name: 'Профилактические работы. 14. Обеспечение работоспособности САЗ. (ТУ)',
+      value:
+        'Задачи САЗ отрабатываются своевременно. Проведён мониторинг статусных сообщений в консоли администрирования САЗ. Службы САЗ работают в штатном режиме. Критические ошибки ОС отсуствуют.',
+    },
+    {
+      name: 'Регламентные работы. 1. Диагностика компонентов серверного оборудования и СХД. (ТУ)',
+      value:
+        'Выполнена очистка от пыли и проверка работоспособности систем охлаждения. Логические ошибки серверов отсутствуют. Выполнена проверка состояния оборудования. Оборудование работает в штатном режиме. Нет необходимости установки новых версий ПО. Нет необходимости установки критических обновлений.',
+    },
+    {
       name: 'Регламентные работы. 2. Диагностика компонентов рабочих станций. (ТУ)',
       value:
         'Проведены работы по диагностике компонентов рабочих станций. Проверены крепления кабелей электропитания. Проведена: очистка от пыли кабелей, вентиляторов, технологических отверстий и внутреннего объема системного блока; проверка индикации исправности системного блока и монитора после включения электропитания; проверка системных журналов ОС на наличие критических ошибок в части аппаратного обеспечения;  проверка оборудования штатными средствами ОС или тестовой программой производителя оборудования на наличие аппаратных ошибок; установка новых версий BIOS (при необходимости); нагрузочное тестирование различных аппаратных частей РС соответствующим ПО (checkdisk (проверка HDD), memtest (ОЗУ), Aida64 (стрессовое тестирование различных компонентов) и т.д.); анализ лог-файлов и журналов событий на наличие ошибок и их устранение при необходимости; анализ и при необходимости редактирование списка автоматически запускаемого ПО для оптимизации работы ОС.',
@@ -85,7 +105,7 @@
         'Проведена диагностика компонентов печатающих устройств: проверка наличия системных сообщений о состоянии оборудования; проверка крепления кабелей электропитания; очистка кабеля от пыли; извлечение узла фотобарабана и тонер-картриджа; очистка от пыли и тонера всех деталей устройства; проверка индикации исправности устройства после подключения к питанию; печать тестовой страницы.',
     },
     {
-      name: '	Регламентные работы. 4. Диагностика компонентов сканирующего оборудования. (ТУ)',
+      name: 'Регламентные работы. 4. Диагностика компонентов сканирующего оборудования. (ТУ)',
       value:
         'Проведена диагностика компонентов сканирующего оборудования:  Проверка наличия системных сообщений о состоянии оборудования. Проверка крепления кабелей электропитания. Очистка кабеля от пыли. Очистка от грязи и пыли компонент (корпус, стекло, сканер лазера и т.д.). Проверка индикации исправности устройства после подключения к питанию. Сканирование тестовой страницы.',
     },
@@ -152,6 +172,8 @@
         case 'https://lki.tax.nalog.ru/tech/expired.php':
           break;
       }
+
+
 
       this.setupTable();
     },
@@ -262,6 +284,8 @@
     deleteSpaces(table, '.reports-head-cell-title');
     deleteSpaces(table, 'td');
 
+    filterSetting.colls = filterSetting.colls.filter(item => [...table.rows[0].cells].some(obj => obj.textContent.includes(item.name)));
+
     const replace = [];
 
     [...table.rows[0].cells].forEach((cell, index) => {
@@ -361,9 +385,10 @@
             break;
           case 'Приоритет': {
             const priorityColors = {
-              Низкий: filterSetting.priorityLowColor,
-              Средний: filterSetting.priorityMediumColor,
-              Высокий: filterSetting.priorityHighColor,
+              'Низкий': filterSetting.priorityLowColor,
+              'Средний': filterSetting.priorityMediumColor,
+              'Высокий': filterSetting.priorityHighColor,
+              'Очень высокий': filterSetting.priorityHighColor,
             };
             for (let j = 1; j < table.rows.length; j++) {
               const cell = table.rows[j].cells[index];
@@ -458,15 +483,6 @@
     }
   });
 
-  let timeout;
-
-  const resetTimer = function () {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      location.reload();
-    }, 300000);
-  };
-
   const timerFilter = function () {
     setTimeout(() => {
       if (!scriptRun) setFilter();
@@ -476,72 +492,18 @@
 
   setTimeout(timerFilter, 100);
 
-  document.addEventListener('click', function (event) {
-    const clickedElement = document.elementFromPoint(
-      event.clientX,
-      event.clientY
-    );
-    if (clickedElement?.closest('button')) {
-      resetTimer();
+  const table = document.querySelector('#report-result-table');
+  const tableHead = table.querySelector('thead');
+
+  const tableHeadCallback = (mutationsList) => {
+    tableHeadObserver.disconnect();
+    for (let mutation of mutationsList) {
+      tableHead.style = {};
     }
-  });
+    tableHeadObserver.observe(tableHead, tableHeadCOnfig);
+  }
 
-  /*const modal = document.createElement('div');
-  modal.id = 'fkuModal';
-  modal.classList.add('fku-modal');
-
-  const modalContent = document.createElement('div');
-  modalContent.classList.add('fku-modal-content');
-
-  const modalContentSpan = document.createElement('span');
-  modalContentSpan.classList.add('fku-close');
-
-  const modalContentH = document.createElement('h2');
-  modalContentH.classList.add('fku-close');
-  modalContentH.textContent = 'Введите ФИО';
-
-  const modalContentInputUser = document.createElement('input');
-  modalContentInputUser.type = 'text';
-  modalContentInputUser.id = 'fkuInputUser';
-  modalContentInputUser.placeholder = 'Введите имя исполнителя';
-
-  const modalContentButton = document.createElement('button');
-  modalContentButton.id = 'fkuButtonSave';
-  modalContentButton.textContent = 'Сохранить';
-
-  modalContent.appendChild(modalContentSpan);
-  modalContent.appendChild(modalContentH);
-  modalContent.appendChild(modalContentInputUser);
-  modalContent.appendChild(modalContentButton);
-
-  modal.appendChild(modalContent);
-
-  document.body.appendChild(modal);
-
-  const buttonOpenModal = document.createElement('button');
-  buttonOpenModal.id = 'fkuButtonOpen';
-  buttonOpenModal.classList.add('fku-fixed-button');
-  buttonOpenModal.textContent = '=>';
-
-  document.body.appendChild(buttonOpenModal);
-
-  const btn = document.getElementById('fkuButtonOpen');
-  const span = document.getElementsByClassName('fku-close')[0];
-  const saveButton = document.getElementById('fkuButtonSave');
-  const inputField = document.getElementById('fkuInputUser');
-
-  btn.onclick = function () {
-    modal.style.display = 'block';
-  };
-
-  span.onclick = function () {
-    modal.style.display = 'none';
-  };
-
-  window.onclick = function (event) {
-    if (event.target === modal) {
-      modal.style.display = 'none';
-    }
-  };
-  */
+  const tableHeadCOnfig = {attributes: true, attributeFilter: ['style']};
+  const tableHeadObserver = new MutationObserver(tableHeadCallback);
+  tableHeadObserver.observe(tableHead, tableHeadCOnfig);
 })();
