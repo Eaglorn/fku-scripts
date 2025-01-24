@@ -45,7 +45,7 @@
     borderColor: '#78909c',
     vksTest: '',
     profFKU: '',
-    profFNS: ''
+    profFNS: '',
   };
 
   const serviceTextData = [
@@ -60,8 +60,9 @@
         'Проведен визуальный контроль работоспособности серверного оборудования. Серверы включены, работают, светодиодные индикаторы сообщают о работе серверов без ошибок.Визуальный контроль работоспособности УАТС проведен. УАТС работает, замечаний нет.Проведен визуальный контроль работоспособности активного сетевого оборудования. Оборудование работает в штатном режиме. Ошибок не обнаружено. Климатические параметры в норме.',
     },
     {
-      name : 'Профилактические работы. 2. Серверное оборудование и СХД. Контроль доступности. Диагностика компонентов. (ТУ)',
-      value: 'Проведен мониторинг работоспособности серверов (в том числе виртуальных) в режиме реального времени с помощью средств мониторинга по протоколу SNMP на предмет ошибочных событий, а также предупреждений, влияющих на работоспособность и производительность данного сервера. Ошибок не обанружено. Мониторинг посредством ПО для контроля состояния (HDD, RAM,CPU) выполнен. Оборудование работает исправно. Контроль доступности СХД выполнен. Оборудование функционирует. Доступ существует. IP-адреса выдаются корректно. Пулы адресов серверного и периферийного оборудования доступны.'
+      name: 'Профилактические работы. 2. Серверное оборудование и СХД. Контроль доступности. Диагностика компонентов. (ТУ)',
+      value:
+        'Проведен мониторинг работоспособности серверов (в том числе виртуальных) в режиме реального времени с помощью средств мониторинга по протоколу SNMP на предмет ошибочных событий, а также предупреждений, влияющих на работоспособность и производительность данного сервера. Ошибок не обанружено. Мониторинг посредством ПО для контроля состояния (HDD, RAM,CPU) выполнен. Оборудование работает исправно. Контроль доступности СХД выполнен. Оборудование функционирует. Доступ существует. IP-адреса выдаются корректно. Пулы адресов серверного и периферийного оборудования доступны.',
     },
     {
       name: 'Профилактические работы. 4. Телекоммуникации. Мониторинг услуг связи. Доступность внешней сети. (ТУ)',
@@ -182,8 +183,6 @@
           break;
       }
 
-
-
       this.setupTable();
     },
     setupTable: function () {
@@ -222,13 +221,19 @@
           display +
           '} ';
       }
-      css = css + ".fku-table td{border-top: 1px solid " + filterSetting.borderColor + " !important; border-bottom: 1px solid " + filterSetting.borderColor + " !important;}";
+      css =
+        css +
+        '.fku-table td{border-top: 1px solid ' +
+        filterSetting.borderColor +
+        ' !important; border-bottom: 1px solid ' +
+        filterSetting.borderColor +
+        ' !important;}';
       style.innerHTML = css;
       document.head.appendChild(style);
 
       this.filterColumns();
     },
-    filterColumns: function () { },
+    filterColumns: function () {},
   };
 
   const ModalModule = {
@@ -236,8 +241,8 @@
       this.createModal();
       this.bindEvents();
     },
-    createModal: function () { },
-    bindEvents: function () { },
+    createModal: function () {},
+    bindEvents: function () {},
   };
 
   const EventModule = {
@@ -245,9 +250,9 @@
       this.bindGlobalEvents();
     },
     bindGlobalEvents: function () {
-      document.addEventListener('click', this.handleClick)
+      document.addEventListener('click', this.handleClick);
     },
-    handleClick: function (event) { },
+    handleClick: function (event) {},
   };
 
   const init = function () {
@@ -271,7 +276,7 @@
     elements.forEach((element) => {
       element.textContent = element.textContent.trim();
     });
-  }
+  };
 
   const oneDayInMillis = 24 * 60 * 60 * 1000;
   let scriptRun = false;
@@ -284,7 +289,7 @@
 
     const table = document.querySelector('#report-result-table');
 
-    table.classList.add("fku-table");
+    table.classList.add('fku-table');
 
     const anotherHeader = document.querySelector('.tableFloatingHeader');
     if (anotherHeader) {
@@ -294,7 +299,11 @@
     deleteSpaces(table, '.reports-head-cell-title');
     deleteSpaces(table, 'td');
 
-    filterSetting.colls = filterSetting.colls.filter(item => [...table.rows[0].cells].some(obj => obj.textContent.includes(item.name)));
+    filterSetting.colls = filterSetting.colls.filter((item) =>
+      [...table.rows[0].cells].some((obj) =>
+        obj.textContent.includes(item.name)
+      )
+    );
 
     const replace = [];
 
@@ -353,21 +362,29 @@
       if (element.visible) {
         switch (element.name) {
           case 'Заявитель':
-            if(filterSetting.profFKU === 'false') {
+            if (filterSetting.profFKU === 'false') {
               for (let j = 1; j < table.rows.length; j++) {
                 const cell = table.rows[j].cells[index];
-                if(table.rows[j].cells[index].textContent.includes('n2700_ФКУ_регламентные_работы')) {
-                  cell.parentNode.style.display = "none";
+                if (
+                  table.rows[j].cells[index].textContent.includes(
+                    'n2700_ФКУ_регламентные_работы'
+                  )
+                ) {
+                  cell.parentNode.style.display = 'none';
                 }
               }
             }
             break;
           case 'Услуга':
-            if(filterSetting.profFNS === 'false') {
+            if (filterSetting.profFNS === 'false') {
               for (let j = 1; j < table.rows.length; j++) {
                 const cell = table.rows[j].cells[index];
-                if(table.rows[j].cells[index].textContent.includes('Профилактические работы')) {
-                  cell.parentNode.style.display = "none";
+                if (
+                  table.rows[j].cells[index].textContent.includes(
+                    'Профилактические работы'
+                  )
+                ) {
+                  cell.parentNode.style.display = 'none';
                 }
               }
             }
@@ -381,7 +398,7 @@
               parent.style.padding = '0px';
               parent.style.margin = '0px';
 
-              for(let k = 0; k < table.rows[j].cells.length; k++) {
+              for (let k = 0; k < table.rows[j].cells.length; k++) {
                 const anotherCell = table.rows[j].cells[k];
                 anotherCell.style.padding = filterSetting.mpSize;
                 anotherCell.style.margin = 'opx';
@@ -398,8 +415,8 @@
             for (let j = 1; j < table.rows.length; j++) {
               const cell = table.rows[j].cells[index];
               if (!cell) break;
-              if(cell.textContent.includes(filterSetting.user)) {
-                cell.parentNode.style.fontSize = "15px";
+              if (cell.textContent.includes(filterSetting.user)) {
+                cell.parentNode.style.fontSize = '15px';
               }
               cell.style.backgroundColor = cell.textContent.includes(
                 filterSetting.user
@@ -429,9 +446,9 @@
             break;
           case 'Приоритет': {
             const priorityColors = {
-              'Низкий': filterSetting.priorityLowColor,
-              'Средний': filterSetting.priorityMediumColor,
-              'Высокий': filterSetting.priorityHighColor,
+              Низкий: filterSetting.priorityLowColor,
+              Средний: filterSetting.priorityMediumColor,
+              Высокий: filterSetting.priorityHighColor,
               'Очень высокий': filterSetting.priorityHighColor,
             };
             for (let j = 1; j < table.rows.length; j++) {
@@ -482,10 +499,14 @@
                       : filterSetting.timeEndTomorrowWarning;
                 } else {
                   filterSetting.colls.forEach((item, number) => {
-                    if(item.name.includes("Услуга")) {
-                      if(filterSetting.vksTest === 'false') {
-                        if(table.rows[j].cells[number].textContent.includes('Оперативно-календарное планирование_003 (ТУ)')) {
-                          cell.parentNode.style.display = "none";
+                    if (item.name.includes('Услуга')) {
+                      if (filterSetting.vksTest === 'false') {
+                        if (
+                          table.rows[j].cells[number].textContent.includes(
+                            'Оперативно-календарное планирование_003 (ТУ)'
+                          )
+                        ) {
+                          cell.parentNode.style.display = 'none';
                         }
                       }
                     }
@@ -507,7 +528,7 @@
     scriptRun = false;
   };
 
-  const createButton = function(text, left, storageKey) {
+  const createButton = function (text, left, storageKey) {
     let storageValue = localStorage.getItem(storageKey);
     if (!storageValue) {
       storageValue = 'false';
@@ -553,11 +574,11 @@
       button.style.backgroundColor = '#0056b3';
     });
     return button;
-  }
+  };
 
-  document.body.appendChild(createButton("ВКС", "30%", "vksTest"));
-  document.body.appendChild(createButton("ФКУ", "50%", "profFKU"));
-  document.body.appendChild(createButton("ФНС", "70%", "profFNS"));
+  document.body.appendChild(createButton('ВКС', '30%', 'vksTest'));
+  document.body.appendChild(createButton('ФКУ', '50%', 'profFKU'));
+  document.body.appendChild(createButton('ФНС', '70%', 'profFNS'));
 
   document.addEventListener('keydown', function (event) {
     if (event.ctrlKey && (event.key === 'b' || event.key === 'и')) {
@@ -610,9 +631,9 @@
       tableHead.style = {};
     }
     tableHeadObserver.observe(tableHead, tableHeadCOnfig);
-  }
+  };
 
-  const tableHeadCOnfig = {attributes: true, attributeFilter: ['style']};
+  const tableHeadCOnfig = { attributes: true, attributeFilter: ['style'] };
   const tableHeadObserver = new MutationObserver(tableHeadCallback);
   tableHeadObserver.observe(tableHead, tableHeadCOnfig);
 })();
