@@ -17,13 +17,13 @@
       { name: 'Код ЭКП', visible: true, width: '25' },
       { name: 'Номер ТУ', visible: true, width: '75' },
       { name: 'Номер БУ', visible: true, width: '75' },
-      { name: 'Дата создания', visible: true, width: '50' },
-      { name: 'Дата принятия', visible: true, width: '50' },
-      { name: 'Дата закрытия', visible: true, width: '50' },
-      { name: 'Крайний срок завершения', visible: true, width: '50' },
-      { name: 'Услуга', visible: true, width: '90' },
-      { name: 'Описание', visible: true, width: '90' },
-      { name: 'Этап', visible: true, width: '40' },
+      { name: 'Дата создания', visible: true, width: '45' },
+      { name: 'Дата принятия', visible: true, width: '45' },
+      { name: 'Дата закрытия', visible: true, width: '45' },
+      { name: 'Крайний срок завершения', visible: true, width: '45' },
+      { name: 'Услуга', visible: true, width: '75' },
+      { name: 'Описание', visible: true, width: '110' },
+      { name: 'Этап', visible: true, width: '30' },
       { name: 'СОНО', visible: true, width: '20' },
       { name: 'Исполнитель', visible: true, width: '70' },
       { name: 'Заявитель', visible: true, width: '70' },
@@ -41,6 +41,11 @@
     priorityHighColor: '#ef9a9a',
     timeEndWarning: '#ffcdd2',
     timeEndTomorrowWarning: '#ffe0b2',
+    mpSize: '3px',
+    borderColor: '#78909c',
+    vksTest: '',
+    profFKU: '',
+    profFNS: ''
   };
 
   const serviceTextData = [
@@ -53,6 +58,10 @@
       name: 'Профилактические работы. 1. Визуальный контроль: серверного оборудования, ТКУ, УАТС, активного сетевого оборудования (ТУ)',
       value:
         'Проведен визуальный контроль работоспособности серверного оборудования. Серверы включены, работают, светодиодные индикаторы сообщают о работе серверов без ошибок.Визуальный контроль работоспособности УАТС проведен. УАТС работает, замечаний нет.Проведен визуальный контроль работоспособности активного сетевого оборудования. Оборудование работает в штатном режиме. Ошибок не обнаружено. Климатические параметры в норме.',
+    },
+    {
+      name : 'Профилактические работы. 2. Серверное оборудование и СХД. Контроль доступности. Диагностика компонентов. (ТУ)',
+      value: 'Проведен мониторинг работоспособности серверов (в том числе виртуальных) в режиме реального времени с помощью средств мониторинга по протоколу SNMP на предмет ошибочных событий, а также предупреждений, влияющих на работоспособность и производительность данного сервера. Ошибок не обанружено. Мониторинг посредством ПО для контроля состояния (HDD, RAM,CPU) выполнен. Оборудование работает исправно. Контроль доступности СХД выполнен. Оборудование функционирует. Доступ существует. IP-адреса выдаются корректно. Пулы адресов серверного и периферийного оборудования доступны.'
     },
     {
       name: 'Профилактические работы. 4. Телекоммуникации. Мониторинг услуг связи. Доступность внешней сети. (ТУ)',
@@ -213,8 +222,9 @@
           display +
           '} ';
       }
-      style.appendChild(document.createTextNode(css));
-      document.body.appendChild(style);
+      css = css + ".fku-table td{border-top: 1px solid " + filterSetting.borderColor + " !important; border-bottom: 1px solid " + filterSetting.borderColor + " !important;}";
+      style.innerHTML = css;
+      document.head.appendChild(style);
 
       this.filterColumns();
     },
@@ -235,10 +245,8 @@
       this.bindGlobalEvents();
     },
     bindGlobalEvents: function () {
-      //document.addEventListener('keydown', this.handleKeyDown)
-      //document.addEventListener('click', this.handleClick)
+      document.addEventListener('click', this.handleClick)
     },
-    handleKeyDown: function (event) { },
     handleClick: function (event) { },
   };
 
@@ -275,6 +283,8 @@
     console.time('setFilter');
 
     const table = document.querySelector('#report-result-table');
+
+    table.classList.add("fku-table");
 
     const anotherHeader = document.querySelector('.tableFloatingHeader');
     if (anotherHeader) {
@@ -342,10 +352,41 @@
     filterSetting.colls.forEach((element, index) => {
       if (element.visible) {
         switch (element.name) {
+          case 'Заявитель':
+            if(filterSetting.profFKU === 'false') {
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if(table.rows[j].cells[index].textContent.includes('n2700_ФКУ_регламентные_работы')) {
+                  cell.parentNode.style.display = "none";
+                }
+              }
+            }
+            break;
+          case 'Услуга':
+            if(filterSetting.profFNS === 'false') {
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if(table.rows[j].cells[index].textContent.includes('Профилактические работы')) {
+                  cell.parentNode.style.display = "none";
+                }
+              }
+            }
+            break;
           case 'Код ЭКП':
             for (let j = 1; j < table.rows.length; j++) {
               const cell = table.rows[j].cells[index];
               if (!cell) break;
+
+              const parent = cell.parentNode;
+              parent.style.padding = '0px';
+              parent.style.margin = '0px';
+
+              for(let k = 0; k < table.rows[j].cells.length; k++) {
+                const anotherCell = table.rows[j].cells[k];
+                anotherCell.style.padding = filterSetting.mpSize;
+                anotherCell.style.margin = 'opx';
+              }
+
               cell.style.backgroundColor = cell.textContent.includes(
                 filterSetting.ekp
               )
@@ -357,6 +398,9 @@
             for (let j = 1; j < table.rows.length; j++) {
               const cell = table.rows[j].cells[index];
               if (!cell) break;
+              if(cell.textContent.includes(filterSetting.user)) {
+                cell.parentNode.style.fontSize = "15px";
+              }
               cell.style.backgroundColor = cell.textContent.includes(
                 filterSetting.user
               )
@@ -436,9 +480,20 @@
                     hour < 12
                       ? filterSetting.timeEndWarning
                       : filterSetting.timeEndTomorrowWarning;
+                } else {
+                  filterSetting.colls.forEach((item, number) => {
+                    if(item.name.includes("Услуга")) {
+                      if(filterSetting.vksTest === 'false') {
+                        if(table.rows[j].cells[number].textContent.includes('Оперативно-календарное планирование_003 (ТУ)')) {
+                          cell.parentNode.style.display = "none";
+                        }
+                      }
+                    }
+                  });
                 }
               }
             }
+            break;
         }
       }
     });
@@ -451,6 +506,58 @@
     console.timeEnd('setFilter');
     scriptRun = false;
   };
+
+  const createButton = function(text, left, storageKey) {
+    let storageValue = localStorage.getItem(storageKey);
+    if (!storageValue) {
+      storageValue = 'false';
+      localStorage.setItem(storageKey, storageValue);
+    }
+    filterSetting[storageKey] = storageValue;
+    const color = storageValue === 'true' ? '#81c784' : '#ffab91';
+    const button = document.createElement('button');
+    button.innerText = text;
+    button.style.position = 'fixed';
+    button.style.top = '10px';
+    button.style.left = left;
+    button.style.transform = 'translateX(-50%)';
+    button.style.zIndex = '1000';
+    button.style.padding = '10px 20px';
+    button.style.fontSize = '16px';
+    button.style.backgroundColor = color;
+    button.style.color = '#ffffff';
+    button.style.border = 'none';
+    button.style.borderRadius = '5px';
+    button.style.cursor = 'pointer';
+    button.style.transition = 'background-color 0.3s, box-shadow 0.3s';
+    button.addEventListener('click', () => {
+      let storageValue = localStorage.getItem(storageKey);
+      if (storageValue) {
+        storageValue = storageValue === 'true' ? 'false' : 'true';
+      }
+      localStorage.setItem(storageKey, storageValue);
+      location.reload();
+    });
+    button.addEventListener('mouseenter', () => {
+      button.style.backgroundColor = '#0056b3';
+    });
+    button.addEventListener('mouseleave', () => {
+      button.style.backgroundColor = color;
+    });
+    button.addEventListener('mousedown', () => {
+      button.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
+      button.style.backgroundColor = '#004494';
+    });
+    button.addEventListener('mouseup', () => {
+      button.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
+      button.style.backgroundColor = '#0056b3';
+    });
+    return button;
+  }
+
+  document.body.appendChild(createButton("ВКС", "30%", "vksTest"));
+  document.body.appendChild(createButton("ФКУ", "50%", "profFKU"));
+  document.body.appendChild(createButton("ФНС", "70%", "profFNS"));
 
   document.addEventListener('keydown', function (event) {
     if (event.ctrlKey && (event.key === 'b' || event.key === 'и')) {
@@ -487,10 +594,12 @@
     setTimeout(() => {
       if (!scriptRun) setFilter();
       timerFilter();
-    }, 50);
+    }, 25);
   };
 
-  setTimeout(timerFilter, 100);
+  if (!scriptRun) setFilter();
+
+  setTimeout(timerFilter, 120);
 
   const table = document.querySelector('#report-result-table');
   const tableHead = table.querySelector('thead');
