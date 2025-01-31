@@ -595,6 +595,9 @@
         storageValue === 'true' ? '#1b5e20' : '#bf360c';
       color = storageValue === 'true' ? '#a5d6a7' : '#ffab91';
 
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
       filterSetting.colls.forEach((element, index) => {
         if (element.visible) {
           switch (element.name) {
@@ -617,7 +620,7 @@
                     if (filterSetting.profFKU === 'false') {
                       cell.parentNode.style.display = 'none';
                     } else {
-                      cell.parentNode.style.display = 'table-cell';
+                      cell.parentNode.style.display = '';
                     }
                   }
                 }
@@ -642,7 +645,7 @@
                     if (filterSetting.profFNS === 'false') {
                       cell.parentNode.style.display = 'none';
                     } else {
-                      cell.parentNode.style.display = 'table-cell';
+                      cell.parentNode.style.display = '';
                     }
                   }
                 }
@@ -652,7 +655,6 @@
               for (let j = 1; j < table.rows.length; j++) {
                 const cell = table.rows[j].cells[index];
                 if (cell && cell.textContent.length >= 3) {
-                  cell.textContent = cell.textContent.slice(0, -3);
                   const dateParts = cell.textContent.split(' ');
                   if (dateParts.length < 2) continue;
                   const [day, month, year] = dateParts[0]
@@ -683,7 +685,7 @@
                             if (filterSetting.vksTest === 'false') {
                               cell.parentNode.style.display = 'none';
                             } else {
-                              cell.parentNode.style.display = 'table-cell';
+                              cell.parentNode.style.display = '';
                             }
                           }
                         }
