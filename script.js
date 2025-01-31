@@ -43,9 +43,9 @@
     timeEndTomorrowWarning: '#ffe0b2',
     mpSize: '3px',
     borderColor: '#78909c',
-    vksTest: '',
-    profFKU: '',
-    profFNS: '',
+    vksTest: 'true',
+    profFKU: 'true',
+    profFNS: 'true',
   };
 
   const serviceTextData = [
@@ -370,7 +370,16 @@
                     'n2700_ФКУ_регламентные_работы'
                   )
                 ) {
-                  cell.parentNode.style.display = 'none';
+                  if (
+                    !window.location.href.includes(
+                      'https://lki.tax.nalog.ru/tech/end.php'
+                    ) ||
+                    !window.location.href.includes(
+                      'https://lki.tax.nalog.ru/tech/new.php'
+                    )
+                  ) {
+                    cell.parentNode.style.display = 'none';
+                  }
                 }
               }
             }
@@ -384,7 +393,16 @@
                     'Профилактические работы'
                   )
                 ) {
-                  cell.parentNode.style.display = 'none';
+                  if (
+                    !window.location.href.includes(
+                      'https://lki.tax.nalog.ru/tech/end.php'
+                    ) ||
+                    !window.location.href.includes(
+                      'https://lki.tax.nalog.ru/tech/new.php'
+                    )
+                  ) {
+                    cell.parentNode.style.display = 'none';
+                  }
                 }
               }
             }
@@ -398,8 +416,7 @@
               parent.style.padding = '0px';
               parent.style.margin = '0px';
 
-              for (let k = 0; k < table.rows[j].cells.length; k++) {
-                const anotherCell = table.rows[j].cells[k];
+              for (let anotherCell of table.rows[j].cells) {
                 anotherCell.style.padding = filterSetting.mpSize;
                 anotherCell.style.margin = 'opx';
               }
@@ -485,7 +502,9 @@
                 const [hour] = dateParts[1].split(':').map(Number);
                 const inputDate = new Date(year, month - 1, day);
                 const differenceInMillis = inputDate - currentDate;
+                let endRequest = false;
                 if (differenceInMillis === 0) {
+                  endRequest = true;
                   cell.style.backgroundColor = filterSetting.timeEndWarning;
                 }
                 let isOneDayInMillis = oneDayInMillis;
@@ -493,11 +512,13 @@
                   isOneDayInMillis *= 3;
                 }
                 if (differenceInMillis - isOneDayInMillis === 0) {
+                  endRequest = true;
                   cell.style.backgroundColor =
                     hour < 12
                       ? filterSetting.timeEndWarning
                       : filterSetting.timeEndTomorrowWarning;
-                } else {
+                }
+                if (!endRequest) {
                   filterSetting.colls.forEach((item, number) => {
                     if (item.name.includes('Услуга')) {
                       if (filterSetting.vksTest === 'false') {
@@ -506,7 +527,16 @@
                             'Оперативно-календарное планирование_003 (ТУ)'
                           )
                         ) {
-                          cell.parentNode.style.display = 'none';
+                          if (
+                            !window.location.href.includes(
+                              'https://lki.tax.nalog.ru/tech/end.php'
+                            ) ||
+                            !window.location.href.includes(
+                              'https://lki.tax.nalog.ru/tech/new.php'
+                            )
+                          ) {
+                            cell.parentNode.style.display = 'none';
+                          }
                         }
                       }
                     }
@@ -535,44 +565,156 @@
       localStorage.setItem(storageKey, storageValue);
     }
     filterSetting[storageKey] = storageValue;
-    const color = storageValue === 'true' ? '#81c784' : '#ffab91';
+    let color = storageValue === 'true' ? '#a5d6a7' : '#ffab91';
     const button = document.createElement('button');
     button.innerText = text;
-    button.style.position = 'fixed';
-    button.style.top = '10px';
+    button.style.position = 'absolute';
+    button.style.top = '7px';
     button.style.left = left;
     button.style.transform = 'translateX(-50%)';
     button.style.zIndex = '1000';
-    button.style.padding = '10px 20px';
+    button.style.padding = '2px 10px';
     button.style.fontSize = '16px';
     button.style.backgroundColor = color;
     button.style.color = '#ffffff';
     button.style.border = 'none';
     button.style.borderRadius = '5px';
     button.style.cursor = 'pointer';
-    button.style.transition = 'background-color 0.3s, box-shadow 0.3s';
-    button.addEventListener('click', () => {
-      let storageValue = localStorage.getItem(storageKey);
+    button.style.transition = 'box-shadow 0.3s, transform 0.3s';
+    button.style.color = 'black';
+    button.id = text;
+
+    button.addEventListener('click', (e) => {
+      storageValue = localStorage.getItem(storageKey);
       if (storageValue) {
         storageValue = storageValue === 'true' ? 'false' : 'true';
       }
       localStorage.setItem(storageKey, storageValue);
-      location.reload();
+      filterSetting[storageKey] = storageValue;
+      e.target.style.backgroundColor =
+        storageValue === 'true' ? '#1b5e20' : '#bf360c';
+      color = storageValue === 'true' ? '#a5d6a7' : '#ffab91';
+
+      filterSetting.colls.forEach((element, index) => {
+        if (element.visible) {
+          switch (element.name) {
+            case 'Заявитель':
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if (
+                  table.rows[j].cells[index].textContent.includes(
+                    'n2700_ФКУ_регламентные_работы'
+                  )
+                ) {
+                  if (
+                    !window.location.href.includes(
+                      'https://lki.tax.nalog.ru/tech/end.php'
+                    ) ||
+                    !window.location.href.includes(
+                      'https://lki.tax.nalog.ru/tech/new.php'
+                    )
+                  ) {
+                    if (filterSetting.profFKU === 'false') {
+                      cell.parentNode.style.display = 'none';
+                    } else {
+                      cell.parentNode.style.display = 'table-cell';
+                    }
+                  }
+                }
+              }
+              break;
+            case 'Услуга':
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if (
+                  table.rows[j].cells[index].textContent.includes(
+                    'Профилактические работы'
+                  )
+                ) {
+                  if (
+                    !window.location.href.includes(
+                      'https://lki.tax.nalog.ru/tech/end.php'
+                    ) ||
+                    !window.location.href.includes(
+                      'https://lki.tax.nalog.ru/tech/new.php'
+                    )
+                  ) {
+                    if (filterSetting.profFNS === 'false') {
+                      cell.parentNode.style.display = 'none';
+                    } else {
+                      cell.parentNode.style.display = 'table-cell';
+                    }
+                  }
+                }
+              }
+              break;
+            case 'Крайний срок завершения':
+              for (let j = 1; j < table.rows.length; j++) {
+                const cell = table.rows[j].cells[index];
+                if (cell && cell.textContent.length >= 3) {
+                  cell.textContent = cell.textContent.slice(0, -3);
+                  const dateParts = cell.textContent.split(' ');
+                  if (dateParts.length < 2) continue;
+                  const [day, month, year] = dateParts[0]
+                    .split('.')
+                    .map(Number);
+                  const inputDate = new Date(year, month - 1, day);
+                  const differenceInMillis = inputDate - currentDate;
+                  let endRequest = false;
+                  if (differenceInMillis === 0) {
+                    endRequest = true;
+                  }
+                  if (!endRequest) {
+                    filterSetting.colls.forEach((item, number) => {
+                      if (item.name.includes('Услуга')) {
+                        if (
+                          table.rows[j].cells[number].textContent.includes(
+                            'Оперативно-календарное планирование_003 (ТУ)'
+                          )
+                        ) {
+                          if (
+                            !window.location.href.includes(
+                              'https://lki.tax.nalog.ru/tech/end.php'
+                            ) ||
+                            !window.location.href.includes(
+                              'https://lki.tax.nalog.ru/tech/new.php'
+                            )
+                          ) {
+                            if (filterSetting.vksTest === 'false') {
+                              cell.parentNode.style.display = 'none';
+                            } else {
+                              cell.parentNode.style.display = 'table-cell';
+                            }
+                          }
+                        }
+                      }
+                    });
+                  }
+                }
+              }
+              break;
+          }
+        }
+      });
     });
+
     button.addEventListener('mouseenter', () => {
-      button.style.backgroundColor = '#0056b3';
+      button.style.backgroundColor =
+        storageValue === 'true' ? '#1b5e20' : '#bf360c';
     });
+
     button.addEventListener('mouseleave', () => {
       button.style.backgroundColor = color;
     });
+
     button.addEventListener('mousedown', () => {
-      button.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
-      button.style.backgroundColor = '#004494';
+      button.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.8)';
     });
+
     button.addEventListener('mouseup', () => {
-      button.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
-      button.style.backgroundColor = '#0056b3';
+      button.style.boxShadow = '';
     });
+
     return button;
   };
 
@@ -615,25 +757,25 @@
     setTimeout(() => {
       if (!scriptRun) setFilter();
       timerFilter();
-    }, 25);
+    }, 150);
   };
 
   if (!scriptRun) setFilter();
 
-  setTimeout(timerFilter, 120);
+  setTimeout(timerFilter, 150);
 
   const table = document.querySelector('#report-result-table');
   const tableHead = table.querySelector('thead');
 
   const tableHeadCallback = (mutationsList) => {
     tableHeadObserver.disconnect();
-    for (let mutation of mutationsList) {
+    if (mutationsList.length > 0) {
       tableHead.style = {};
     }
-    tableHeadObserver.observe(tableHead, tableHeadCOnfig);
+    tableHeadObserver.observe(tableHead, tableHeadConfig);
   };
 
-  const tableHeadCOnfig = { attributes: true, attributeFilter: ['style'] };
+  const tableHeadConfig = { attributes: true, attributeFilter: ['style'] };
   const tableHeadObserver = new MutationObserver(tableHeadCallback);
-  tableHeadObserver.observe(tableHead, tableHeadCOnfig);
+  tableHeadObserver.observe(tableHead, tableHeadConfig);
 })();
